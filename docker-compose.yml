@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    environment:
+      - DATABASE_URL=postgresql://user:password@db/dbname
+    networks:
+      - app-network
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dbname
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - app-network
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
